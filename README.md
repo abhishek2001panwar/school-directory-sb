@@ -48,6 +48,3 @@ create policy "Service role can insert"
   with check (true);
 ```
 
-## Notes
-- The server API uses the SUPABASE_SERVICE_ROLE key (only on server). Do **not** expose it in the browser.
-- Make sure the `schoolImages` bucket is public (or you'll need signed URLs).
