@@ -38,7 +38,18 @@ export default function LoginPage() {
           // Use the auth context login function
           login(data.token, data.user);
           setMessage("✅ Login successful!");
-          router.push('/');
+          
+          // Check if there's a redirect URL
+          const redirectTo = typeof window !== 'undefined' 
+            ? sessionStorage.getItem('redirectAfterLogin') 
+            : null;
+          
+          if (redirectTo) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            router.push(redirectTo);
+          } else {
+            router.push('/');
+          }
         } else {
           setMessage(data.error || "Login failed");
         }
@@ -92,7 +103,18 @@ export default function LoginPage() {
         // Use the auth context login function
         login(data.token, data.user);
         setMessage("✅ Email verified successfully!");
-        router.push('/');
+        
+        // Check if there's a redirect URL
+        const redirectTo = typeof window !== 'undefined' 
+          ? sessionStorage.getItem('redirectAfterLogin') 
+          : null;
+        
+        if (redirectTo) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          router.push(redirectTo);
+        } else {
+          router.push('/');
+        }
       } else {
         setMessage(data.error || "Verification failed");
       }
@@ -130,115 +152,184 @@ export default function LoginPage() {
 
   if (showOtpInput) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <form
-          onSubmit={handleVerifyOtp}
-          className="bg-white shadow-lg rounded-xl p-6 w-96"
-        >
-          <h1 className="text-xl font-bold mb-4">Verify Your Email</h1>
-          <p className="text-sm text-gray-600 mb-4">
-            Enter the 6-digit code sent to {email}
-          </p>
-          <input
-            type="text"
-            placeholder="Enter 6-digit code"
-            className="w-full border p-2 mb-4 rounded"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            maxLength={6}
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 disabled:opacity-50"
-          >
-            {loading ? "Verifying..." : "Verify Code"}
-          </button>
-          <button
-            type="button"
-            onClick={handleResendOtp}
-            disabled={loading}
-            className="w-full mt-2 text-blue-600 hover:text-blue-800 disabled:opacity-50"
-          >
-            Resend Code
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setShowOtpInput(false);
-              setOtp("");
-              setMessage("");
-            }}
-            className="w-full mt-2 text-gray-600 hover:text-gray-800"
-          >
-            Back to Sign Up
-          </button>
-          {message && (
-            <p className={`mt-4 text-sm ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>
-              {message}
-            </p>
-          )}
-        </form>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex justify-center items-center p-4">
+        <div className="relative">
+          {/* Background decoration */}
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+          
+          <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-3xl p-8 w-full max-w-md border border-white/50 relative">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📧</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Verify Your Email</h1>
+              <p className="text-gray-600">
+                We sent a 6-digit code to
+              </p>
+              <p className="font-semibold text-indigo-600">{email}</p>
+            </div>
+
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">Verification Code</label>
+                <input
+                  type="text"
+                  placeholder="000000"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-center text-2xl font-mono tracking-widest focus:border-indigo-500 focus:outline-none transition-colors bg-white/70 backdrop-blur-sm"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Verifying...
+                  </span>
+                ) : (
+                  "✅ Verify Code"
+                )}
+              </button>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={loading}
+                  className="w-full py-2 text-indigo-600 hover:text-indigo-700 font-medium disabled:opacity-50 transition-colors"
+                >
+                  🔄 Resend Code
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOtpInput(false);
+                    setOtp("");
+                    setMessage("");
+                  }}
+                  className="w-full py-2 text-gray-500 hover:text-gray-600 transition-colors"
+                >
+                  ← Back to Sign Up
+                </button>
+              </div>
+
+              {message && (
+                <div className={`p-4 rounded-xl border-2 ${
+                  message.includes("✅") 
+                    ? "bg-green-50 border-green-200 text-green-700" 
+                    : "bg-red-50 border-red-200 text-red-700"
+                }`}>
+                  <p className="text-sm font-medium">{message}</p>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
       </div>
     );
   }
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-6 w-96">
-        <div className="flex mb-6">
-          <button
-            onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 px-4 rounded-l ${isLogin ? 'bg-black text-white' : 'bg-gray-200'}`}
-          >
-            Login
-          </button>
-          <button
-            onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 px-4 rounded-r ${!isLogin ? 'bg-black text-white' : 'bg-gray-200'}`}
-          >
-            Sign Up
-          </button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex justify-center items-center p-4">
+      <div className="relative">
+        {/* Background decoration */}
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+        
+        <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-3xl p-8 w-full max-w-md border border-white/50 relative">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🏫</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800">Welcome Back!</h1>
+            <p className="text-gray-600">Access your school directory account</p>
+          </div>
 
-        <form onSubmit={handleAuth}>
-          <h1 className="text-xl font-bold mb-4">
-            {isLogin ? "Login" : "Create Account"}
-          </h1>
-          
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="w-full border p-2 mb-4 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          
-          <input
-            type="password"
-            placeholder="Enter your password"
-            className="w-full border p-2 mb-4 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 disabled:opacity-50"
-          >
-            {loading ? "Processing..." : (isLogin ? "Login" : "Sign Up")}
-          </button>
-          
-          {message && (
-            <p className={`mt-4 text-sm ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}>
-              {message}
-            </p>
-          )}
-        </form>
+          {/* Toggle Buttons */}
+          <div className="flex mb-8 p-1 bg-gray-100 rounded-2xl">
+            <button
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                isLogin 
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              🔐 Login
+            </button>
+            <button
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                !isLogin 
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              ✨ Sign Up
+            </button>
+          </div>
+
+          <form onSubmit={handleAuth} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">📧 Email Address</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors bg-white/70 backdrop-blur-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">🔒 Password</label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors bg-white/70 backdrop-blur-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Processing...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  {isLogin ? "🚀 Login" : "✨ Create Account"}
+                </span>
+              )}
+            </button>
+            
+            {message && (
+              <div className={`p-4 rounded-xl border-2 ${
+                message.includes("✅") 
+                  ? "bg-green-50 border-green-200 text-green-700" 
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}>
+                <p className="text-sm font-medium">{message}</p>
+              </div>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );

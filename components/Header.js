@@ -10,7 +10,19 @@ export default function Header() {
   const { user, logout, isAuthenticated, loading } = useAuth()
 
   const link = (href, label) => (
-    <Link href={href} className={clsx('px-3 py-2 rounded-xl text-sm font-medium transition', pathname === href ? 'bg-black text-white' : 'bg-white text-black border')}>
+    <Link 
+      href={href} 
+      onClick={() => {
+        // Small delay to allow navigation, then refresh
+        setTimeout(() => router.refresh(), 100);
+      }}
+      className={clsx(
+        'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+        pathname === href 
+          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25' 
+          : 'bg-white/70 text-gray-700 hover:bg-white/90 hover:shadow-md backdrop-blur-sm'
+      )}
+    >
       {label}
     </Link>
   )
@@ -36,11 +48,13 @@ export default function Header() {
 
   if (loading) {
     return (
-      <header className="w-full border-b bg-white/60 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold">School Directory</Link>
+      <header className="w-full backdrop-blur-lg bg-white/80 border-b border-white/20 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            🏫 School Directory
+          </Link>
           <div className="flex items-center gap-2">
-            <div className="px-3 py-2 text-sm">Loading...</div>
+            <div className="px-4 py-2 text-sm text-gray-500 animate-pulse">Loading...</div>
           </div>
         </div>
       </header>
@@ -48,21 +62,28 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b bg-white/60 backdrop-blur sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-lg font-semibold">School Directory</Link>
-        <nav className="flex items-center gap-2">
+    <header className="w-full backdrop-blur-lg bg-white/80 border-b border-white/20 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:scale-105 transition-transform">
+          🏫 School Directory
+        </Link>
+        <nav className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              {link('/schools', 'Show Schools')}
-              {link('/add-school', 'Add School')}
-              <div className="flex items-center gap-2 ml-2">
-                <span className="text-sm text-gray-600">
-                  {user?.email}
-                </span>
+              {link('/schools', '📚 Show Schools')}
+              {link('/add-school', '➕ Add School')}
+              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                    {user?.email?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                  <span className="text-sm text-gray-600 hidden sm:block">
+                    {user?.email}
+                  </span>
+                </div>
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+                  className="px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:-translate-y-0.5"
                 >
                   Logout
                 </button>
@@ -71,9 +92,9 @@ export default function Header() {
           ) : (
             <Link 
               href="/auth/login"
-              className="px-3 py-2 rounded-xl text-sm font-medium bg-black text-white hover:bg-gray-800 transition"
+              className="px-6 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5"
             >
-              Login
+              🔐 Login
             </Link>
           )}
         </nav>
